@@ -156,6 +156,7 @@ export default function WinScreen({ h1Ref, gameState, category, onPlayAgain }: W
             <BingoCardComponent
               card={gameState.card}
               winningLines={gameState.winningLines}
+              oneAwayLine={null}
               onToggleSquare={() => {}}
             />
           )}
