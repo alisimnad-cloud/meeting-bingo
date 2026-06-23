@@ -37,18 +37,19 @@ export default function GameBoard({
   const { addToast } = useToast()
   const lastOneAwayLineRef = useRef<number | null>(null)
 
+  const closest = winningLines.length === 0 ? getClosestToWin(card) : null
+  const oneAwayLine = closest?.unfilledCount === 1 ? closest.line : null
+
   // One-away toast
   useEffect(() => {
-    if (winningLines.length > 0) return
-    const closest = getClosestToWin(card)
-    if (!closest || closest.unfilledCount !== 1) {
+    if (!oneAwayLine) {
       lastOneAwayLineRef.current = null
       return
     }
-    if (lastOneAwayLineRef.current === closest.line.lineIndex) return
-    lastOneAwayLineRef.current = closest.line.lineIndex
+    if (lastOneAwayLineRef.current === oneAwayLine.lineIndex) return
+    lastOneAwayLineRef.current = oneAwayLine.lineIndex
     addToast('One away from BINGO!', 'info', 5000)
-  }, [card, winningLines, addToast])
+  }, [oneAwayLine, addToast])
 
   const filledCount = card.flat().filter(
     (sq) => sq.state !== 'default' && sq.state !== 'free-space',
@@ -70,6 +71,7 @@ export default function GameBoard({
       <BingoCardComponent
         card={card}
         winningLines={winningLines}
+        oneAwayLine={oneAwayLine}
         onToggleSquare={onToggleSquare}
       />
 

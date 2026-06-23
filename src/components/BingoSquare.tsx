@@ -5,6 +5,7 @@ import { useReducedMotion } from '../hooks/useReducedMotion'
 interface BingoSquareProps {
   square: BingoSquareType
   isWinning: boolean
+  isOneAway: boolean
   tabIndex: number
   onFocus: () => void
   onKeyDown: (e: React.KeyboardEvent<HTMLButtonElement>) => void
@@ -35,6 +36,7 @@ function MicIcon() {
 export default function BingoSquare({
   square,
   isWinning,
+  isOneAway,
   tabIndex,
   onFocus,
   onKeyDown,
@@ -47,8 +49,10 @@ export default function BingoSquare({
   const isManualFilled = state === 'manual-filled'
   const isAutoFilled = state === 'auto-filled'
   const isFilled = isManualFilled || isAutoFilled || isWinning
+  // One-away hint only shows on unfilled, non-free squares when game is not won
+  const showOneAway = isOneAway && state === 'default' && !isWinning
 
-  const ariaLabel = `${word}, ${isWinning ? stateLabel.winning : stateLabel[state]}`
+  const ariaLabel = `${word}, ${isWinning ? stateLabel.winning : stateLabel[state]}${showOneAway ? ', one away from bingo' : ''}`
 
   return (
     <button
@@ -64,7 +68,9 @@ export default function BingoSquare({
         'relative flex h-full w-full min-h-[64px] flex-col items-center justify-center gap-1 rounded-lg border-2 p-1 text-center text-xs font-medium transition-all',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-1',
         // Default
-        !isFilled && !isFreeSpace && 'border-gray-200 bg-white text-gray-800 hover:border-purple-300 hover:bg-purple-50',
+        !isFilled && !isFreeSpace && !showOneAway && 'border-gray-200 bg-white text-gray-800 hover:border-purple-300 hover:bg-purple-50',
+        // One-away hint (unfilled target square)
+        showOneAway && 'border-amber-400 border-dashed bg-amber-50 text-amber-900 hover:bg-amber-100',
         // Manual filled
         isManualFilled && !isWinning && 'border-purple-400 bg-purple-100 text-purple-900',
         // Auto filled
@@ -78,6 +84,11 @@ export default function BingoSquare({
       )}
     >
       <span className="leading-tight">{word}</span>
+      {showOneAway && (
+        <span className="text-amber-500" aria-hidden="true">
+          ◎
+        </span>
+      )}
       {isManualFilled && !isWinning && (
         <span className="text-purple-500" aria-hidden="true">
           ✓

@@ -5,15 +5,20 @@ import type { BingoCard as BingoCardType, BingoSquare, WinningLine } from '../ty
 interface BingoCardProps {
   card: BingoCardType
   winningLines: WinningLine[]
+  oneAwayLine: WinningLine | null
   onToggleSquare: (square: BingoSquare) => void
 }
 
-export default function BingoCard({ card, winningLines, onToggleSquare }: BingoCardProps) {
+export default function BingoCard({ card, winningLines, oneAwayLine, onToggleSquare }: BingoCardProps) {
   const gridRef = useRef<HTMLDivElement>(null)
   const [focusedCell, setFocusedCell] = useState({ row: 0, col: 0 })
 
   const winningCoords = new Set(
     winningLines.flatMap((l) => l.squares.map((s) => `${s.row},${s.col}`)),
+  )
+
+  const oneAwayCoords = new Set(
+    oneAwayLine?.squares.map((s) => `${s.row},${s.col}`) ?? [],
   )
 
   const moveFocus = useCallback((row: number, col: number) => {
@@ -72,6 +77,7 @@ export default function BingoCard({ card, winningLines, onToggleSquare }: BingoC
             <BingoSquareComponent
               square={square}
               isWinning={winningCoords.has(`${ri},${ci}`)}
+              isOneAway={oneAwayCoords.has(`${ri},${ci}`)}
               tabIndex={focusedCell.row === ri && focusedCell.col === ci ? 0 : -1}
               onFocus={() => setFocusedCell({ row: ri, col: ci })}
               onKeyDown={(e) => handleKeyDown(e, ri, ci)}
